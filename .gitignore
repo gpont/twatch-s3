@@ -1,0 +1,39 @@
+# Secrets
+firmware/include/secrets.h
+server/.env
+
+# Flash backups (never commit, 16 MB and device-specific)
+*.bin
+!docs/**/*.bin
+
+# PlatformIO
+firmware/.pio/
+firmware/.vscode/
+
+# Node
+node_modules/
+dist/
+coverage/
+*.log
+
+# Server runtime data
+server/data/
+
+# OS / editors
+.DS_Store
+.idea/
+firmware/tools/fonts/ttf/
+firmware/ota_secrets.ini
+firmware/src/build_info.h
+
+# pioarduino hybrid compile (custom_sdkconfig) artefacts
+firmware/managed_components/
+firmware/.dummy/
+firmware/sdkconfig.defaults
+firmware/sdkconfig.*
+firmware/dependencies.lock
+firmware/CMakeLists.txt
+
+# Owner-only notes and data (personal): never published
+private/
+CLAUDE.local.md

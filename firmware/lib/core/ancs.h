@@ -21,10 +21,10 @@ struct SourceEvent {
 };
 bool parseSource(const uint8_t *d, size_t n, SourceEvent &out);
 
-constexpr size_t kAppMax = 63, kTitleMax = 95, kMessageMax = 399, kNameMax = 31;
+constexpr size_t kAppMax = 63, kTitleMax = 95, kMessageMax = 399, kNameMax = 31, kLabelMax = 23;
 
 // Control Point commands; return the number of bytes written (0 if it doesn't fit)
-size_t buildGetNotification(uint32_t uid, uint8_t *out, size_t cap); // app id, title, message, date
+size_t buildGetNotification(uint32_t uid, uint8_t *out, size_t cap); // app id, title, message, date, action labels
 size_t buildGetAppName(const char *appId, uint8_t *out, size_t cap);
 size_t buildAction(uint32_t uid, Action a, uint8_t *out, size_t cap);
 
@@ -34,6 +34,8 @@ struct Attributes {
     char title[kTitleMax + 1];
     char message[kMessageMax + 1];
     char date[16]; // "yyyyMMddTHHmmSS", local time of the phone
+    char positive[kLabelMax + 1]; // action labels from iOS ("Accept", "Approve"...), may be empty
+    char negative[kLabelMax + 1];
 };
 
 // "20261116T194233" -> "19:42"; false (out untouched) if malformed
@@ -87,6 +89,8 @@ struct Item {
     char app[kNameMax + 1];   // display name
     char title[kTitleMax + 1];
     char message[kMessageMax + 1];
+    char positive[kLabelMax + 1]; // action button labels (flags tell which actions exist)
+    char negative[kLabelMax + 1];
 };
 
 class Store {

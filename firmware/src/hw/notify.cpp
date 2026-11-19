@@ -227,6 +227,10 @@ static void emit(const ancs::Attributes &a, const char *name)
     strncpy(it.app, name, sizeof(it.app) - 1);
     strncpy(it.title, a.title, sizeof(it.title) - 1);
     strncpy(it.message, a.message, sizeof(it.message) - 1);
+    strncpy(it.positive, a.positive, sizeof(it.positive) - 1);
+    strncpy(it.negative, a.negative, sizeof(it.negative) - 1);
+    // what iOS offers per app (research: can app actions like Okta "Approve" be pressed from the watch?)
+    diag::log("ancs: %s cat=%u flags=0x%02x pos='%s' neg='%s'", a.app, it.category, it.flags, a.positive, a.negative);
     putOut(s_cur.announce ? kNew : kUpdate, &it);
 }
 
@@ -447,6 +451,14 @@ void dismiss(uint32_t uid)
     s_store.remove(uid);
 }
 
+void act(uint32_t uid, bool positive)
+{
+    if (!positive) { dismiss(uid); return; }
+    Cmd c = {kAction, uid, ancs::kActionPositive};
+    xQueueSend(s_cmd, &c, 0);
+    wakeWorker(); // iOS then sends "removed" if the action consumed the notification
+}
+
 void callAnswer(uint32_t uid, bool accept)
 {
     Cmd c = {kAction, uid, accept ? ancs::kActionPositive : ancs::kActionNegative};
@@ -464,6 +476,7 @@ void inject(const char *title, const char *message, bool call)
     it.haptic = call ? ancs::Haptic::kCall : ancs::Haptic::kTelegram;
     strcpy(it.when, "12:34");
     strcpy(it.app, call ? "Телефон" : "Telegram");
+    if (!call) { strcpy(it.positive, "Approve"); strcpy(it.negative, "Deny"); it.flags |= ancs::kPositiveAction; }
     ancs::sanitize(title, strlen(title), it.title, sizeof(it.title), false);
     ancs::sanitize(message, strlen(message), it.message, sizeof(it.message), true);
     static Out o; // loop side: not the worker's buffer

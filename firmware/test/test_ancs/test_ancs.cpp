@@ -38,7 +38,7 @@ void test_build_get_notification()
 {
     uint8_t b[32];
     size_t n = buildGetNotification(0x01020304, b, sizeof(b));
-    const uint8_t want[] = {0, 4, 3, 2, 1, 0, 1, kTitleMax & 0xFF, kTitleMax >> 8, 3, kMessageMax & 0xFF, kMessageMax >> 8, 5};
+    const uint8_t want[] = {0, 4, 3, 2, 1, 0, 1, kTitleMax & 0xFF, kTitleMax >> 8, 3, kMessageMax & 0xFF, kMessageMax >> 8, 5, 6, 7};
     TEST_ASSERT_EQUAL_UINT32(sizeof(want), n);
     TEST_ASSERT_EQUAL_UINT8_ARRAY(want, b, n);
 }
@@ -71,6 +71,8 @@ static size_t makeResponse(uint32_t uid, uint8_t *b)
     attr(1, "Мама");
     attr(3, "Привет\nкак дела?");
     attr(5, "20261116T194233");
+    attr(6, "Approve");
+    attr(7, "Deny \xF0\x9F\x98\x80");
     return n;
 }
 
@@ -85,6 +87,8 @@ void test_assembler_whole_packet()
     TEST_ASSERT_EQUAL_STRING("Мама", a.attributes().title);
     TEST_ASSERT_EQUAL_STRING("Привет\nкак дела?", a.attributes().message);
     TEST_ASSERT_EQUAL_STRING("20261116T194233", a.attributes().date);
+    TEST_ASSERT_EQUAL_STRING("Approve", a.attributes().positive);
+    TEST_ASSERT_EQUAL_STRING("Deny \xF0\x9F\x98\x80", a.attributes().negative);
     TEST_ASSERT_FALSE(a.busy());
 }
 

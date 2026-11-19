@@ -14,12 +14,13 @@ bool parseSource(const uint8_t *d, size_t n, SourceEvent &out)
 }
 
 // Attribute ids
-static constexpr uint8_t kAttrApp = 0, kAttrTitle = 1, kAttrMessage = 3, kAttrDate = 5, kAttrDisplayName = 0;
-static constexpr int kAttrCount = 4;
+static constexpr uint8_t kAttrApp = 0, kAttrTitle = 1, kAttrMessage = 3, kAttrDate = 5, kAttrPositive = 6,
+                         kAttrNegative = 7, kAttrDisplayName = 0;
+static constexpr int kAttrCount = 6;
 
 size_t buildGetNotification(uint32_t uid, uint8_t *out, size_t cap)
 {
-    if (cap < 13) return 0;
+    if (cap < 15) return 0;
     out[0] = 0; // GetNotificationAttributes
     put32(out + 1, uid);
     out[5] = kAttrApp;
@@ -30,7 +31,9 @@ size_t buildGetNotification(uint32_t uid, uint8_t *out, size_t cap)
     out[10] = kMessageMax & 0xFF;
     out[11] = kMessageMax >> 8;
     out[12] = kAttrDate;
-    return 13;
+    out[13] = kAttrPositive;
+    out[14] = kAttrNegative;
+    return 15;
 }
 
 size_t buildGetAppName(const char *appId, uint8_t *out, size_t cap)
@@ -108,6 +111,10 @@ Assembler::Result Assembler::tryParse()
                 size_t k = len < sizeof(a.date) - 1 ? len : sizeof(a.date) - 1;
                 memcpy(a.date, v, k);
                 a.date[k] = 0;
+            } else if (id == kAttrPositive) {
+                copyAttr(v, len, a.positive, sizeof(a.positive), false);
+            } else if (id == kAttrNegative) {
+                copyAttr(v, len, a.negative, sizeof(a.negative), false);
             }
             pos += 3 + len;
         }

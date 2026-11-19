@@ -28,6 +28,7 @@ void markAllRead();
 
 void dismiss(uint32_t uid);          // ANCS negative action if allowed, and remove locally
 void callAnswer(uint32_t uid, bool accept);
+void act(uint32_t uid, bool positive);   // press the notification's positive / negative action on the iPhone
 
 struct Stats {
     uint16_t intervalX100us; // current connection interval, 0.1 ms units (0 = no link)

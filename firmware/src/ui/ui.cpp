@@ -251,6 +251,13 @@ static void onPopupDelete(lv_event_t *)
     notificationsChanged();
 }
 
+static void onPopupPositive(lv_event_t *)
+{
+    notify::act(s_popupUid, true);
+    notify::markRead(s_popupUid);
+    closePopup();
+}
+
 static lv_obj_t *button(lv_obj_t *parent, int w, int h, uint32_t bg, const char *text, lv_event_cb_t cb, void *ud)
 {
     lv_obj_t *b = lv_obj_create(parent);
@@ -297,9 +304,16 @@ void showNotification(const ancs::Item &it)
     header(s_popup, 216, it, &f_text_14);
     if (it.title[0]) textLine(s_popup, &f_text_20, kFg, 216, 0, it.title);
     if (it.message[0]) textLine(s_popup, &f_text_14, kSoft, 216, 0, it.message);
-    if (it.flags & ancs::kNegativeAction) {
-        lv_obj_t *b = button(s_popup, 216, 40, 0x3A1E20, "Удалить", onPopupDelete, nullptr);
-        lv_obj_set_style_margin_top(b, 8, 0);
+    // the notification's own actions from iOS (labels like "Approve" / "Deny"; fallback names)
+    bool pos = it.flags & ancs::kPositiveAction, neg = it.flags & ancs::kNegativeAction;
+    if (pos || neg) {
+        lv_obj_t *row = plain(s_popup, 216);
+        lv_obj_set_style_margin_top(row, 8, 0);
+        lv_obj_set_flex_flow(row, LV_FLEX_FLOW_ROW);
+        lv_obj_set_style_pad_column(row, 8, 0);
+        int w = pos && neg ? 104 : 216;
+        if (neg) button(row, w, 44, 0x3A1E20, it.negative[0] ? it.negative : "Удалить", onPopupDelete, nullptr);
+        if (pos) button(row, w, 44, 0x1E5C34, it.positive[0] ? it.positive : "OK", onPopupPositive, nullptr);
     }
     power::userActivity();
 }

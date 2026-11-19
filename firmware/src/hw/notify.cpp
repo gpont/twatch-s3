@@ -354,6 +354,12 @@ static void worker(void *)
         if (s_link >= Link::kConnected && s_needSubscribe) {
             s_needSubscribe = false;
             subscribe();
+            if (settings::get().lora) {
+                // The GATT database differs from what the bonded iPhone cached (Meshtastic service added at boot):
+                // NimBLE only indicates changes made while running, so tell iOS to rediscover the services.
+                NimBLEDevice::getServer()->sendServiceChangedIndication();
+                diag::log("ble: service changed indication sent");
+            }
         }
         if (s_link >= Link::kConnected && s_paramsPending && millis() - s_connectedAt > 5000) {
             s_paramsPending = false;

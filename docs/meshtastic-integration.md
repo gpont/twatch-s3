@@ -22,6 +22,17 @@ BLE) is next. Source: `meshtastic/firmware` @ `647831b` (2.8.3, 2026-11-17).
   rollback would not help).
 - Flash: 2.8 MB of 4 MB. Text messages trigger a buzz and show on the LoRa screen.
 
+## Phase 2: phone app (implemented, not verified with the app yet)
+- `src/lora/phone_ble.cpp`: port of Meshtastic's `NimbleBluetooth.cpp` phone API to NimBLE-Arduino 2.x — service
+  `6ba1b218-…` with ToRadio (write), FromRadio (read), FromNum (notify), encrypted access only (the iPhone is
+  already bonded through the ANCS pairing). Same queue/thread rules as upstream: BLE callbacks only move bytes,
+  `PhoneAPI` runs in the mesh task; callbacks wake it via `concurrency::mainDelay.interrupt()` (the mesh loop waits
+  on `mainDelay`, not `vTaskDelay`).
+- The service is registered on the watch's NimBLE server at BLE start when LoRa is on; the service UUID goes into
+  the scan response, and the watch keeps advertising while the iPhone is connected so the app can find it.
+- Connection parameters: fast (7.5–15 ms) only during the app's config sync, then back to the watch's 300–330 ms,
+  latency 4 (Meshtastic uses 30–50 ms steady state).
+
 ## Goal
 Keep this firmware (faces, iPhone notifications, sleep model, settings) and add a Meshtastic node on the
 built-in SX1262 radio, controlled from the official **Meshtastic iOS app** over Bluetooth — the way external LoRa

@@ -25,6 +25,7 @@
 #include "mesh/RadioLibInterface.h"
 #include "mesh/Throttle.h"
 #include "hw/diag.h"
+#include "phone_ble.h"
 #include "app/settings.h"
 #include <Preferences.h>
 
@@ -117,6 +118,7 @@ static void task(void *)
     if (rIf) router->addInterface(std::move(rIf));
     nodeDB->notifyObservers(true);
     if (textMessageModule) s_textObserver.observe(textMessageModule);
+    startPhoneApi(); // the Meshtastic app talks to the core through our NimBLE server
     s_running = true;
     diag::log("lora: core up, radio=%d nodes=%u", radioOk, (unsigned)nodeDB->getNumMeshNodes());
     uint32_t upSince = millis();
@@ -151,7 +153,7 @@ static void task(void *)
         }
         service->loop();
         long ms = concurrency::mainController.runOrDelay();
-        vTaskDelay(pdMS_TO_TICKS(ms < 1 ? 1 : ms > 100 ? 100 : ms));
+        concurrency::mainDelay.delay(ms < 1 ? 1 : ms > 100 ? 100 : ms); // BLE callbacks interrupt() this wait
     }
 }
 

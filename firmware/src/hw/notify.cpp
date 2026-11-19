@@ -6,6 +6,7 @@
 #include "app/settings.h"
 #include "diag.h"
 #include "power.h"
+#include "lora/phone_ble.h"
 
 namespace notify {
 
@@ -74,6 +75,8 @@ class ServerCb : public NimBLEServerCallbacks {
         s_needSecurity = true; // iOS keeps the link only for a paired accessory
         s_paramsPending = true;
         noteParams(ci, "connected,");
+        // LoRa on: keep advertising so the Meshtastic app can find the watch while iOS holds the ANCS link
+        if (settings::get().lora) NimBLEDevice::startAdvertising();
         wakeWorker();
     }
     void onDisconnect(NimBLEServer *, NimBLEConnInfo &, int reason) override
@@ -82,6 +85,7 @@ class ServerCb : public NimBLEServerCallbacks {
         s_dropped = true;
         s_stats.drops++;
         s_stats.intervalX100us = 0;
+        if (settings::get().lora) lora::phoneLinkDown();
         diag::log("ble: disconnected reason=0x%x after %lus", reason, (unsigned long)((millis() - s_connectedAt) / 1000));
         wakeWorker();
     }
@@ -90,6 +94,7 @@ class ServerCb : public NimBLEServerCallbacks {
     {
         diag::log("ble: auth encrypted=%d bonded=%d", ci.isEncrypted(), ci.isBonded());
         if (ci.isEncrypted()) s_needSubscribe = true;
+        if (ci.isEncrypted() && settings::get().lora) lora::phoneLinkUp(ci.getConnHandle());
         wakeWorker();
     }
 };
@@ -115,6 +120,12 @@ static void advertise()
                                       0x99, 0x4E, 0xCE, 0xB5, 0x31, 0xF4, 0x05, 0x79};
     data.addData(ancsSol, sizeof(ancsSol));
     adv->setAdvertisementData(data);
+    if (settings::get().lora) { // Meshtastic app scans for its service: 128-bit UUID goes into the scan response
+        NimBLEAdvertisementData scan;
+        scan.addServiceUUID(NimBLEUUID(lora::phoneServiceUuid()));
+        adv->setScanResponseData(scan);
+        adv->enableScanResponse(true);
+    }
     adv->setMinInterval(800); // 500-600 ms: cheap, iOS still reconnects within seconds
     adv->setMaxInterval(960);
     adv->start();
@@ -146,6 +157,7 @@ static void startBle()
     NimBLEServer *server = NimBLEDevice::createServer();
     server->setCallbacks(new ServerCb());
     server->advertiseOnDisconnect(true);
+    if (settings::get().lora) lora::addPhoneService(server);
     advertise();
     s_running = true;
     s_link = Link::kWaiting;

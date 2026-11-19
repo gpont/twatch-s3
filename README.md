@@ -5,7 +5,8 @@
 **Open-source firmware for the LilyGO T-Watch S3 smartwatch (ESP32-S3)**<br>
 7 watch faces · iPhone notifications without an app (ANCS) · step counter · Wi-Fi OTA updates · real light sleep
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
+[![Meshtastic compatible](https://img.shields.io/badge/LoRa-Meshtastic%20compatible-67ea94)](docs/meshtastic-integration.md)
 [![Device](https://img.shields.io/badge/device-LilyGO%20T--Watch%20S3-ff7a1a)](https://lilygo.cc/products/t-watch-s3)
 [![MCU](https://img.shields.io/badge/MCU-ESP32--S3-e7352c?logo=espressif&logoColor=white)](https://www.espressif.com/en/products/socs/esp32-s3)
 [![PlatformIO](https://img.shields.io/badge/build-PlatformIO-f5822a?logo=platformio&logoColor=white)](https://platformio.org/)
@@ -70,6 +71,11 @@ Not for the T-Watch 2020/2021, T-Watch S3 Plus or T-Watch Ultra (different hardw
 - Screen off → ESP32-S3 light sleep. With notifications on, the ESP-IDF power manager sleeps between BLE events while the iPhone link stays up.
 - **Night power save** (22:30–07:30, switchable): Bluetooth off, deeper sleep, dim short screen.
 - Tuned by measurements: LVGL frame pacing, 80/240 MHz CPU scaling, LoRa radio asleep, touch auto-monitor, audio drivers not started ([power report](docs/power/README.md)).
+
+**LoRa mesh (Meshtastic-compatible, in progress)** ([details](docs/meshtastic-integration.md))
+- The Meshtastic mesh core runs on the built-in SX1262 next to everything else; switch it on from the bottom screen.
+- Today: joins the default EU_868 LongFast mesh, shows and buzzes on received text messages. Next: control from the
+  official Meshtastic iPhone app over the same Bluetooth link.
 
 **Developer friendly**
 - **Wi-Fi OTA**: put the watch on any charger and upload a new build with one command; automatic rollback if a new build fails to boot 3 times.
@@ -199,7 +205,8 @@ Ideas and bug reports are welcome in [issues](https://github.com/gpont/twatch-s3
 Pull requests are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md). Security issues: see [SECURITY.md](SECURITY.md).
 
 ## License
-[MIT](LICENSE). Bundled fonts and libraries keep their own licenses — see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+[GPL-3.0](LICENSE) — since 2026-11-19, when the Meshtastic mesh core (GPL-3.0) was integrated; earlier commits were MIT.
+Bundled fonts and libraries keep their own licenses — see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
 ## Credits
 - [LilyGoLib](https://github.com/Xinyuan-LilyGO/LilyGoLib) (board support) and [LilyGO](https://lilygo.cc/) for the hardware.

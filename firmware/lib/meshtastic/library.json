@@ -1,0 +1,38 @@
+{
+  "name": "meshtastic-core",
+  "version": "2.8.3",
+  "description": "Vendored Meshtastic mesh core (GPL-3.0), headless: no screen, no BLE layer, no GPS/Wi-Fi",
+  "license": "GPL-3.0-only",
+  "build": {
+    "srcDir": "src",
+    "includeDir": "src",
+    "libLDFMode": "off",
+    "srcFilter": [
+      "-<*>",
+      "+<mesh/AckProof.cpp>", "+<mesh/AdminKeys.cpp>", "+<mesh/aes-ccm.cpp>", "+<mesh/Channels.cpp>",
+      "+<mesh/CryptoEngine.cpp>", "+<mesh/Default.cpp>", "+<mesh/FloodingRouter.cpp>", "+<mesh/HardwareRNG.cpp>",
+      "+<mesh/InterfacesTemplates.cpp>", "+<mesh/mesh-pb-constants.cpp>", "+<mesh/MeshModule.cpp>",
+      "+<mesh/MeshPacketQueue.cpp>", "+<mesh/MeshService.cpp>", "+<mesh/NextHopRouter.cpp>", "+<mesh/NodeDB.cpp>",
+      "+<mesh/NodeDBLegacyMigration.cpp>", "+<mesh/PacketHistory.cpp>", "+<mesh/PhoneAPI.cpp>",
+      "+<mesh/PositionPrecision.cpp>", "+<mesh/RadioInterface.cpp>", "+<mesh/RadioLibInterface.cpp>",
+      "+<mesh/RadioTxHook.cpp>", "+<mesh/ReliableRouter.cpp>", "+<mesh/Router.cpp>", "+<mesh/SX126xInterface.cpp>",
+      "+<mesh/SX1262Interface.cpp>", "+<mesh/Throttle.cpp>", "+<mesh/TransmitHistory.cpp>",
+      "+<mesh/TypeConversions.cpp>", "+<mesh/WarmNodeStore.cpp>",
+      "+<mesh/generated/meshtastic/*.pb.cpp>",
+      "+<concurrency/BinarySemaphoreFreeRTOS.cpp>", "+<concurrency/InterruptableDelay.cpp>", "+<concurrency/Lock.cpp>",
+      "+<concurrency/LockGuard.cpp>", "+<concurrency/NotifiedWorkerThread.cpp>", "+<concurrency/OSThread.cpp>",
+      "+<platform/esp32/ESP32CryptoEngine.cpp>",
+      "+<gps/RTC.cpp>",
+      "+<modules/Modules.cpp>", "+<modules/RoutingModule.cpp>", "+<modules/NodeInfoModule.cpp>",
+      "+<modules/AdminModule.cpp>", "+<modules/TextMessageModule.cpp>",
+      "+<Observer.cpp>", "+<FSCommon.cpp>", "+<SafeFile.cpp>", "+<meshUtils.cpp>", "+<memGet.cpp>",
+      "+<UptimeClock.cpp>", "+<airtime.cpp>", "+<RedirectablePrint.cpp>", "+<DebugConfiguration.cpp>",
+      "+<MessageStore.cpp>", "+<SerialConsole.cpp>", "+<mesh/StreamAPI.cpp>", "+<mesh/StreamFrameWriter.cpp>",
+      "+<memory/MemAudit.cpp>", "+<DisplayFormatters.cpp>", "+<detect/ScanI2C.cpp>", "+<xmodem.cpp>", "+<SPILock.cpp>", "+<PowerMon.cpp>",
+      "+<power/PowerHAL.cpp>", "+<modules/HopScalingModule.cpp>", "+<modules/KeyVerificationModule.cpp>",
+      "+<modules/MeshBeaconModule.cpp>", "+<modules/NeighborInfoModule.cpp>", "+<modules/StatusLEDModule.cpp>",
+      "+<modules/StatusMessageModule.cpp>", "+<modules/TrafficManagementModule.cpp>",
+      "+<modules/Telemetry/DeviceTelemetry.cpp>"
+    ]
+  }
+}

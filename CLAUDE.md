@@ -18,6 +18,9 @@ Custom firmware for the LilyGO T-Watch S3 (ESP32-S3, SX1262). Instructions for A
 - Done and verified on the wrist: sleep/wake, steps, RTC/NTP + 12 time zones, 7 faces, navigation (notifications
   up / settings left / steps + system right), settings, Wi-Fi OTA with rollback, iPhone notifications (ANCS) with
   list, card, swipe-to-dismiss, calls, per-app haptics, unread counter, emoji, night power save.
+- In progress: Meshtastic core in `firmware/lib/meshtastic` (vendored, GPL-3.0, local changes marked `// twatch:`),
+  glue in `firmware/src/lora/`; phases 0–1 done, phase 2 = phone API over our NimBLE (`docs/meshtastic-integration.md`).
+  Mesh log: `GET /meshlog`; switch: `GET /debug?lora=0|1`.
 - Open: notification-mode draw ~15 mA average (expected 7–8) — investigate with `GET /stats`; wrist-gesture
   sensitivity needs own tilt detection (BMA423 feature has no thresholds); budget/weather wait for a companion server.
 

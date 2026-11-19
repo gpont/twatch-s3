@@ -12,6 +12,7 @@
 #include "hw/notify.h"
 #include "hw/ota.h"
 #include "hw/power.h"
+#include "lora/mesh_core.h"
 #include "local_time.h"
 #include "night.h"
 #include "ui/ui.h"
@@ -23,7 +24,7 @@
 // Never hibernate it: without a reset pin only a reboot brings it back.
 static void lowPowerPeripherals()
 {
-    int r = radio.sleep();
+    int r = settings::get().lora ? -1 : radio.sleep(); // with LoRa on the mesh core owns the radio
     Wire1.beginTransmission(0x38);
     Wire1.write(0x86);
     Wire1.write(0x01);
@@ -66,6 +67,11 @@ static void notifications()
             ui::showNotification(it);
         }
     }
+    if (lora::takeNewMessage() && !modes::night()) { // mesh text message: buzz + screen on
+        haptics::notification(ancs::Haptic::kDefault);
+        power::screenOnNow();
+        ui::showTile(5);
+    }
     if (s_callUid) {
         uint32_t ms = millis();
         if (ms - s_callStart > 30000) {
@@ -106,6 +112,7 @@ void setup()
     init.initNfc = false;
     init.initSd = false;
     init.scanI2c = false;
+    init.initRadio = !settings::get().lora; // LoRa on: the Meshtastic core drives the SX1262 itself
     instance.begin(init);
     beginLvglHelper(instance);
 
@@ -118,6 +125,7 @@ void setup()
     periodicWork();
     ui::begin();
     notify::begin();
+    if (settings::get().lora) lora::begin();
     diag::log("fw=%s accel=%s", ota::version(), motion::modelName());
     // Loop watchdog (5 s): a hang panics and reboots instead of freezing the watch; diag logs the stage.
     // power.cpp unsubscribes it around light sleep.

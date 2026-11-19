@@ -9,7 +9,7 @@ void begin();
 void update();        // refresh values; call ~1 Hz while the screen is on
 void setFace(int i);  // build watch face i (wraps), persist the choice
 void nextFace();
-void showTile(int i); // 0 face, 1 notifications, 2 steps, 3 settings, 4 system (steps screen, scrolled down)
+void showTile(int i); // 0 face, 1 notifications, 2 steps, 3 settings, 4 system (steps screen, scrolled down), 5 LoRa
 void scrollToRow(int i); // settings list (for screenshots)
 int faceCount();
 

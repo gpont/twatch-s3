@@ -11,6 +11,7 @@
 #include "hw/haptics.h"
 #include "hw/motion.h"
 #include "hw/notify.h"
+#include "lora/mesh_core.h"
 #include "hw/ota.h"
 #include "hw/power.h"
 #include "ru_text.h"
@@ -587,10 +588,52 @@ static void buildSettings(lv_obj_t *t)
     addRow(list, kRowReboot, "Перезагрузить", changeReboot, showReboot);
 }
 
+// ---------- LoRa / Meshtastic (bottom) ----------
+static lv_obj_t *s_meshState, *s_meshNodes, *s_meshMsg, *s_meshToggle;
+
+static void onMeshToggle(lv_event_t *)
+{
+    settings::get().lora = !settings::get().lora;
+    settings::save();
+    lv_label_set_text(lv_obj_get_child(s_meshToggle, 0), "Перезагрузка…");
+    lv_refr_now(nullptr);
+    delay(400);
+    ESP.restart(); // the mesh core starts (or stays off) at boot
+}
+
+static void buildMesh(lv_obj_t *t)
+{
+    lv_obj_t *title = label(t, &f_text_14, kMuted, 12, 8);
+    lv_label_set_text(title, "LoRa · Meshtastic");
+    s_meshState = label(t, &f_text_20, kFg, 12, 34);
+    s_meshNodes = label(t, &f_text_14, kMuted, 12, 62);
+    s_meshMsg = textLine(t, &f_text_14, kSoft, 216, 3, "");
+    lv_obj_set_pos(s_meshMsg, 12, 88);
+    s_meshToggle = button(t, 216, 44, settings::get().lora ? 0x3A1E20 : 0x1E5C34,
+                          settings::get().lora ? "Выключить LoRa" : "Включить LoRa", onMeshToggle, nullptr);
+    lv_obj_align(s_meshToggle, LV_ALIGN_BOTTOM_MID, 0, -12);
+}
+
+static void updateMesh()
+{
+    lv_label_set_text(s_meshState, lora::status());
+    if (lora::running())
+        lv_label_set_text_fmt(s_meshNodes, "Узлов: %lu · сообщений: %lu", (unsigned long)lora::nodeCount(),
+                              (unsigned long)lora::messages());
+    else
+        lv_label_set_text(s_meshNodes, settings::get().lora ? "" : "Радио выключено");
+    char from[12], text[200];
+    if (lora::lastMessage(from, sizeof(from), text, sizeof(text)))
+        lv_label_set_text_fmt(s_meshMsg, "%s: %s", from, text);
+    else
+        lv_label_set_text(s_meshMsg, lora::running() ? "Сообщений пока нет" : "");
+}
+
 // ---------- shell: tiles around the face ----------
 //         [notifications]
 // [settings]  [face]  [steps + system]
-static lv_obj_t *s_tiles[5]; // 0 face, 1 notifications, 2 steps (+ system below), 3 settings; 4 = steps too
+//              [LoRa]
+static lv_obj_t *s_tiles[6]; // 0 face, 1 notifications, 2 steps (+ system below), 3 settings, 4 = steps too, 5 LoRa
 
 void scrollToRow(int i)
 {
@@ -600,8 +643,8 @@ void scrollToRow(int i)
 
 void showTile(int i)
 {
-    static const uint8_t col[5] = {1, 1, 2, 0, 2}, row[5] = {1, 0, 1, 1, 1};
-    if (i < 0 || i > 4) i = 0;
+    static const uint8_t col[6] = {1, 1, 2, 0, 2, 1}, row[6] = {1, 0, 1, 1, 1, 2};
+    if (i < 0 || i > 5) i = 0;
     lv_tileview_set_tile_by_index(s_tv, col[i], row[i], LV_ANIM_OFF);
     if (i == 4) lv_obj_scroll_to_view(s_infoDiag, LV_ANIM_OFF);
 }
@@ -616,10 +659,11 @@ void begin()
 
     s_tiles[1] = lv_tileview_add_tile(s_tv, 1, 0, LV_DIR_BOTTOM);
     s_tiles[3] = lv_tileview_add_tile(s_tv, 0, 1, LV_DIR_RIGHT);
-    s_faceTile = s_tiles[0] = lv_tileview_add_tile(s_tv, 1, 1, (lv_dir_t)(LV_DIR_LEFT | LV_DIR_RIGHT | LV_DIR_TOP));
+    s_faceTile = s_tiles[0] = lv_tileview_add_tile(s_tv, 1, 1, LV_DIR_ALL);
     s_tiles[4] = s_tiles[2] = lv_tileview_add_tile(s_tv, 2, 1, LV_DIR_LEFT);
     lv_obj_set_scroll_dir(s_tiles[2], LV_DIR_VER); // steps on top, system info further down
     lv_obj_set_scrollbar_mode(s_tiles[2], LV_SCROLLBAR_MODE_OFF);
+    s_tiles[5] = lv_tileview_add_tile(s_tv, 1, 2, LV_DIR_TOP);
 
     s_faceBox = lv_obj_create(s_faceTile);
     lv_obj_remove_style_all(s_faceBox);
@@ -631,6 +675,7 @@ void begin()
     buildSteps(s_tiles[2]);
     buildSettings(s_tiles[3]);
     buildSystem(s_tiles[4]);
+    buildMesh(s_tiles[5]);
 
     setFace(settings::get().face);
     showTile(0);
@@ -646,6 +691,7 @@ void update()
         updateNotifStatus();
         notify::markAllRead(); // the list is on screen: everything counts as seen
     }
+    if (active == s_tiles[5]) updateMesh();
     if (active == s_tiles[2]) {
         updateSteps();
         updateSystem();

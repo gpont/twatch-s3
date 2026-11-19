@@ -20,6 +20,7 @@
 #include <LV_Helper.h>
 #include "ui/ui.h"
 #include "notify.h"
+#include "lora/mesh_core.h"
 #include "app/modes.h"
 
 #if __has_include("secrets.h")
@@ -188,6 +189,7 @@ static bool requireAuth()
 // GET /debug?pm=1               (auth) power manager lock/mode stats
 // GET /debug?notif=TEXT[&call=1] (auth) fake notification (UI/haptics test without the phone)
 // GET /debug?forget=1            (auth) delete BLE bonds (pair the iPhone again)
+// GET /debug?lora=0|1            (auth) switch the Meshtastic LoRa node off/on (reboots)
 // GET /debug?led=0..4            (auth) AXP2101 CHGLED: 0 off(HiZ) 1 low 2 high 3 blink 1 Hz 4 blink 4 Hz
 // GET /debug?selftest=1          (auth) wake self-test without a human: RTC timer + haptic -> accelerometer
 // GET /debug?wdttest=task|rtc     (auth) hang on purpose to verify the watchdogs (task WDT / RTC WDT only)
@@ -195,7 +197,7 @@ static void handleDebug()
 {
     if (s_http.hasArg("sleeptest") || s_http.hasArg("panelsleep") || s_http.hasArg("wdttest") || s_http.hasArg("selftest") ||
         s_http.hasArg("face") || s_http.hasArg("tile") || s_http.hasArg("row") || s_http.hasArg("pm") ||
-        s_http.hasArg("notif") || s_http.hasArg("forget") || s_http.hasArg("led")) {
+        s_http.hasArg("notif") || s_http.hasArg("forget") || s_http.hasArg("led") || s_http.hasArg("lora")) {
         if (!requireAuth()) return;
         if (s_http.hasArg("pm")) {
             StreamString o;
@@ -208,6 +210,13 @@ static void handleDebug()
             notify::inject(s_http.arg("notif").c_str(), s_http.arg("msg").c_str(), s_http.hasArg("call"));
             s_http.send(200, "text/plain", "ok\n");
             return;
+        }
+        if (s_http.hasArg("lora")) {
+            settings::get().lora = s_http.arg("lora").toInt() != 0;
+            settings::save();
+            s_http.send(200, "text/plain", settings::get().lora ? "LoRa on, rebooting\n" : "LoRa off, rebooting\n");
+            delay(300);
+            ESP.restart();
         }
         if (s_http.hasArg("led")) {
             int v = s_http.arg("led").toInt();
@@ -337,6 +346,15 @@ static void handleBatlog()
     s_http.send(200, "text/plain", (const String &)o);
 }
 
+static void handleMeshLog()
+{
+    StreamString o;
+    o.printf("lora=%d status=%s nodes=%lu messages=%lu\n", settings::get().lora, lora::status(),
+             (unsigned long)lora::nodeCount(), (unsigned long)lora::messages());
+    lora::dumpLog(o);
+    s_http.send(200, "text/plain", (const String &)o);
+}
+
 static void handleStats()
 {
     StreamString o;
@@ -355,6 +373,7 @@ static void startOta()
     s_http.on("/screenshot", HTTP_GET, handleScreenshot);
     s_http.on("/batlog", HTTP_GET, handleBatlog);
     s_http.on("/stats", HTTP_GET, handleStats);
+    s_http.on("/meshlog", HTTP_GET, handleMeshLog);
     s_http.on("/update", HTTP_POST, handleUploadDone, handleUpload);
     s_http.begin();
     s_otaStarted = true;

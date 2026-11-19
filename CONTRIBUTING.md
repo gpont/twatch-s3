@@ -42,7 +42,7 @@ A clean i18n layer does not exist yet — proposals are welcome (open an issue f
 ## Pull requests
 - One topic per PR, describe *what* and *why*, list what you verified on hardware.
 - Make sure `pio run` and `pio test -e native` pass.
-- By contributing you agree that your contribution is licensed under the [MIT License](LICENSE).
+- By contributing you agree that your contribution is licensed under the [GPL-3.0](LICENSE).
 
 ## Code of conduct
 Be kind and constructive. We follow the [Contributor Covenant](CODE_OF_CONDUCT.md).

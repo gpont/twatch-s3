@@ -1,6 +1,26 @@
 # Meshtastic inside this firmware — feasibility study
 
-Status: research, 2026-11-19. Not implemented. Source studied: `meshtastic/firmware` @ `647831b` (2.8.3, 2026-11-17).
+Status: phases 0–1 done (2026-11-19): the core is vendored in `firmware/lib/meshtastic`, starts from
+`firmware/src/lora/`, transmits its NodeInfo on EU_868 LongFast and persists config on FAT. Phase 2 (phone app over
+BLE) is next. Source: `meshtastic/firmware` @ `647831b` (2.8.3, 2026-11-17).
+
+## Implementation notes (phases 0–1)
+- Settings → bottom screen "LoRa · Meshtastic": on/off (reboots; the core has no clean shutdown). `GET /debug?lora=0|1`
+  does the same remotely. Off = LilyGoLib starts the radio and puts it to sleep, the core never runs.
+- `src/lora/mesh_core.cpp` replays the needed parts of Meshtastic's `setup()`/`loop()` in a FreeRTOS task:
+  console → RAM ring (`GET /meshlog`), `powerHAL_init`, `powerMonInit`, `initSPI` (spiLock!), `OSThread::setup`,
+  `fsInit`, RTC from our clock, NodeDB → ReliableRouter → MeshService → modules → `initLoRa()` (after
+  `service->init()`) → `airTime`. Per loop: `Time::serviceMonotonic`, reboot requests, `saveNodeDatabaseIfDirty`,
+  `pollMissedIrqs` every 1 s (also covers IRQs during light sleep), radio maintenance, `service->loop`, scheduler.
+- `src/lora/mesh_stubs.cpp`: globals of their `main.cpp`, `getDeviceMetadata`, MAC/device id, sleep observables and
+  a fake power FSM (our power service stays in charge).
+- Vendored changes (`// twatch:`): `FSCom` → `FFat`; `renameFile` removes the target first (FAT cannot rename onto
+  an existing file). `variant/variant.h` is a headless T-Watch S3 variant (radio pins only).
+- RadioLib moved to the commit Meshtastic pins (LilyGoLib only uses basic calls). Default region EU_868
+  (`USERPREFS_CONFIG_LORA_REGION`).
+- Crash guard: 3 core starts without a stable minute switch LoRa off (the image is already validated, so OTA
+  rollback would not help).
+- Flash: 2.8 MB of 4 MB. Text messages trigger a buzz and show on the LoRa screen.
 
 ## Goal
 Keep this firmware (faces, iPhone notifications, sleep model, settings) and add a Meshtastic node on the

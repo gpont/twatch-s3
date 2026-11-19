@@ -12,7 +12,8 @@ struct Settings {
     uint8_t vibration = 2;      // 0 soft, 1 medium, 2 strong
     uint8_t timezone = 0;       // index into local_time::kZones
     bool notifications = true;
-    bool nightSave = true;      // night power save 22:30-07:30 (app/modes)  // iPhone notifications over BLE (+ PM auto light sleep)
+    bool nightSave = true;
+    bool lora = false;          // Meshtastic-compatible LoRa node (src/lora), applied at boot      // night power save 22:30-07:30 (app/modes)  // iPhone notifications over BLE (+ PM auto light sleep)
 };
 
 namespace settings {

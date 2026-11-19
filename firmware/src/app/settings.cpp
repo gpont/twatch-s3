@@ -19,6 +19,7 @@ void load()
     s.timezone = p.getUChar("tz", s.timezone);
     s.notifications = p.getBool("notif", s.notifications);
     s.nightSave = p.getBool("nightsave", s.nightSave);
+    s.lora = p.getBool("lora", s.lora);
     p.end();
     if (s.brightness >= sizeof(kBrightnessLevels)) s.brightness = 1;
     if (s.vibration > 2) s.vibration = 2;
@@ -38,6 +39,7 @@ void save()
     p.putUChar("tz", s.timezone);
     p.putBool("notif", s.notifications);
     p.putBool("nightsave", s.nightSave);
+    p.putBool("lora", s.lora);
     p.end();
 }
 

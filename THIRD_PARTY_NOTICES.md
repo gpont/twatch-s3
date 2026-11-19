@@ -1,7 +1,15 @@
 # Third-party notices
 
-This firmware is MIT-licensed (see [LICENSE](LICENSE)). It is built with, and the binary contains,
-the following third-party components under their own licenses.
+This firmware is licensed under the GNU GPL v3 (see [LICENSE](LICENSE)). It is built with, and the binary
+contains, the following third-party components under their own licenses.
+
+## Vendored source
+| Component | Where | License |
+| --- | --- | --- |
+| [Meshtastic firmware](https://github.com/meshtastic/firmware) mesh core, commit `647831b` (2.8.3) | `firmware/lib/meshtastic` (local changes marked `// twatch:`) | GPL-3.0 |
+
+"Meshtastic" is a trademark of Meshtastic LLC; this firmware is *compatible with* Meshtastic and not an official
+Meshtastic product.
 
 ## Libraries (fetched by PlatformIO, not stored in this repository)
 | Component | License |
@@ -10,7 +18,12 @@ the following third-party components under their own licenses.
 | [LVGL](https://github.com/lvgl/lvgl) | MIT |
 | [NimBLE-Arduino](https://github.com/h2zero/NimBLE-Arduino) | Apache-2.0 |
 | [SensorLib](https://github.com/lewisxhe/SensorLib) (incl. Bosch BMA4xx driver) | MIT (Bosch sources: BSD-3-Clause) |
-| [RadioLib](https://github.com/jgromes/RadioLib) | MIT |
+| [RadioLib](https://github.com/jgromes/RadioLib) (commit pinned by Meshtastic) | MIT |
+| [nanopb](https://github.com/nanopb/nanopb) | zlib |
+| [meshtastic/Crypto](https://github.com/meshtastic/Crypto) | MIT |
+| [meshtastic/ArduinoThread](https://github.com/meshtastic/ArduinoThread) | MIT |
+| [meshtastic/arduino-fsm](https://github.com/meshtastic/arduino-fsm), [OneButton](https://github.com/meshtastic/OneButton), [esp8266-oled-ssd1306](https://github.com/meshtastic/esp8266-oled-ssd1306), [TinyGPSPlus](https://github.com/meshtastic/TinyGPSPlus) (headers only, code paths excluded) | MIT / LGPL-2.1 (TinyGPSPlus) |
+| [ErriezCRC32](https://github.com/Erriez/ErriezCRC32) | MIT |
 | [ArduinoJson](https://github.com/bblanchon/ArduinoJson) | MIT |
 | [Arduino-ESP32](https://github.com/espressif/arduino-esp32) | LGPL-2.1 |
 | [ESP-IDF](https://github.com/espressif/esp-idf) (via pioarduino) | Apache-2.0 |

@@ -1,6 +1,6 @@
 # Meshtastic inside this firmware — feasibility study
 
-Status: phases 0–1 done (2026-11-19): the core is vendored in `firmware/lib/meshtastic`, starts from
+Status: phases 0–2 done (2026-11-19): the core is vendored in `firmware/lib/meshtastic`, starts from
 `firmware/src/lora/`, transmits its NodeInfo on EU_868 LongFast and persists config on FAT. Phase 2 (phone app over
 BLE) is next. Source: `meshtastic/firmware` @ `647831b` (2.8.3, 2026-11-17).
 
@@ -22,7 +22,12 @@ BLE) is next. Source: `meshtastic/firmware` @ `647831b` (2.8.3, 2026-11-17).
   rollback would not help).
 - Flash: 2.8 MB of 4 MB. Text messages trigger a buzz and show on the LoRa screen.
 
-## Phase 2: phone app (implemented, not verified with the app yet)
+## Phase 2: phone app (verified 2026-11-19: the iOS app connects, syncs config, sends messages)
+- iOS caches the GATT database of a bonded device and NimBLE only indicates changes made while running, so the
+  watch sends a Service Changed indication on every connection when LoRa is on — without it the app failed to
+  connect.
+- Belgrade's mesh uses `MEDIUM_FAST` (meshmap.net); the preset changes live from the app (`Ch=31` = MediumFast
+  channel hash). Receiving from other nodes is not verified yet: none in range of the test watch indoors.
 - `src/lora/phone_ble.cpp`: port of Meshtastic's `NimbleBluetooth.cpp` phone API to NimBLE-Arduino 2.x — service
   `6ba1b218-…` with ToRadio (write), FromRadio (read), FromNum (notify), encrypted access only (the iPhone is
   already bonded through the ANCS pairing). Same queue/thread rules as upstream: BLE callbacks only move bytes,

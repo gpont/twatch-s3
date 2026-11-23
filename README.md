@@ -3,7 +3,7 @@
 # T-Watch S3 Custom Firmware
 
 **Open-source firmware for the LilyGO T-Watch S3 smartwatch (ESP32-S3)**<br>
-7 watch faces · iPhone notifications without an app (ANCS) · step counter · Wi-Fi OTA updates · real light sleep
+7 watch faces · iPhone notifications without an app (ANCS) · Meshtastic-compatible LoRa node · step counter · Wi-Fi OTA updates · real light sleep
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 [![Meshtastic compatible](https://img.shields.io/badge/LoRa-Meshtastic%20compatible-67ea94)](docs/meshtastic-integration.md)
@@ -72,10 +72,16 @@ Not for the T-Watch 2020/2021, T-Watch S3 Plus or T-Watch Ultra (different hardw
 - **Night power save** (22:30–07:30, switchable): Bluetooth off, deeper sleep, dim short screen.
 - Tuned by measurements: LVGL frame pacing, 80/240 MHz CPU scaling, LoRa radio asleep, touch auto-monitor, audio drivers not started ([power report](docs/power/README.md)).
 
-**LoRa mesh (Meshtastic-compatible, in progress)** ([details](docs/meshtastic-integration.md))
-- The Meshtastic mesh core runs on the built-in SX1262 next to everything else; switch it on from the bottom screen.
-- Today: joins the default EU_868 LongFast mesh, shows and buzzes on received text messages. Next: control from the
-  official Meshtastic iPhone app over the same Bluetooth link.
+**LoRa mesh node, Meshtastic-compatible** ([details](docs/meshtastic-integration.md))
+- The [Meshtastic](https://meshtastic.org/) mesh core (vendored 2.8.3) runs on the built-in SX1262 next to the watch
+  features — faces, iPhone notifications and sleep keep working. Off by default; switch it on from the bottom screen.
+- The official **Meshtastic iPhone app** connects over the same Bluetooth link as the notifications: configure the
+  node (region, modem preset, channels, name) and chat. Verified: the app connects, syncs and sends messages.
+- Received text messages buzz the watch and show on the LoRa screen.
+- Defaults: region EU_868, LongFast; change the preset to whatever your local mesh uses (check
+  [meshmap.net](https://meshmap.net)).
+- Costs ≈ +5 mA while on (the radio listens continuously). The built-in antenna is tiny: expect short range indoors.
+- Status: receiving from other nodes is not verified yet (no node in range of the test watch so far).
 
 **Developer friendly**
 - **Wi-Fi OTA**: put the watch on any charger and upload a new build with one command; automatic rollback if a new build fails to boot 3 times.
@@ -149,11 +155,19 @@ The UI strings are Russian (Cyrillic fonts, Russian dates and the word clock). T
 ```
             [notifications]
 [settings]      [face]       [steps + system info ↓]
+              [LoRa mesh]
 ```
-- **Swipe** from the face: up → notifications, left → settings, right → steps (scroll down for battery, iPhone link, firmware).
+- **Swipe** from the face: up → notifications, left → settings, right → steps (scroll down for battery, iPhone link,
+  firmware), down → LoRa mesh (on/off, status, nodes, last message).
 - **Long-press** the face → next watch face.
 - **Crown** → screen on/off. **Tap** or **raise your wrist** → screen on.
 - In the notification list: tap to open, swipe sideways to dismiss.
+
+### LoRa / Meshtastic
+1. On the watch swipe down from the face and tap **Turn on LoRa** (the watch reboots).
+2. Install the [Meshtastic app](https://apps.apple.com/app/meshtastic/id1586432531), open its Bluetooth connection
+   screen and pick **twatch** (the watch must already be paired for notifications).
+3. In the app set the modem preset your local mesh uses (*Settings → LoRa*); the watch applies it immediately.
 
 ## Battery life
 
@@ -163,6 +177,7 @@ The UI strings are Russian (Cyrillic fonts, Russian dates and the word clock). T
 | --- | --- | --- |
 | Notifications off, screen mostly off | ~7 mA in sleep | ~2.5–3 days |
 | Notifications on, normal wear | ~15 mA | ~30 h |
+| + LoRa node on | ≈ +5 mA (estimate, not measured yet) | ~22 h |
 
 Notification-mode draw is being investigated with the hourly stats (`GET /stats`); night power save is new and expected to help.
 
@@ -173,6 +188,8 @@ firmware/            PlatformIO project
   src/hw/            board services: power & sleep, notifications (BLE/ANCS), OTA + HTTP API, clock, motion, haptics
   src/ui/            LVGL screens and watch faces (src/ui/faces)
   src/app/           settings, night mode
+  src/lora/          Meshtastic glue: core startup, phone API over our BLE, stubs
+  lib/meshtastic/    vendored Meshtastic mesh core (GPL-3.0, local changes marked // twatch:)
   lib/core/          pure logic with host unit tests (ANCS protocol, steps, local time, …)
   tools/             OTA upload, font generator, build info
 scripts/             setup, USB flash, flash backup/restore
@@ -183,6 +200,7 @@ docs/                developer documentation (below)
 | --- | --- |
 | [docs/dev-workflow.md](docs/dev-workflow.md) | build, OTA, rollback, HTTP API, verified hardware quirks, watchdogs — **read before hacking** |
 | [docs/ble.md](docs/ble.md) | iPhone notifications: ANCS, BLE in light sleep, design |
+| [docs/meshtastic-integration.md](docs/meshtastic-integration.md) | LoRa mesh: how the Meshtastic core is integrated, phases, risks |
 | [docs/power/README.md](docs/power/README.md) | power measurements and optimizations |
 | [docs/flashing.md](docs/flashing.md) | download mode, backup, restore, factory image |
 | [docs/adr/](docs/adr/) | architecture decision records |
@@ -195,6 +213,7 @@ uvx --python 3.13 --from platformio pio test -d firmware -e native
 
 ## Roadmap
 - Investigate notification-mode power draw (hourly stats are in).
+- LoRa: verify receiving on a real mesh, measure power, mesh messages list and replies on the watch.
 - Wrist-gesture sensitivity setting (own tilt detection on top of the BMA423 feature).
 - TOTP codes, Home Assistant scene buttons, IR remote, time via iPhone (BLE CTS).
 - Optional companion server (weather, budget, calendar) — not started.

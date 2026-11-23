@@ -192,8 +192,19 @@ static void subscribe()
     diag::log("ancs: subscribed ns=%d ds=%d mtu=%u", okNs, okDs, client->getMTU());
 }
 
+static void dropPending(uint32_t uid)
+{
+    for (int i = 0; i < s_pendCount; i++)
+        if (s_pend[i].uid == uid) { s_pend[i] = s_pend[--s_pendCount]; return; }
+}
+
 static void addPending(const ancs::SourceEvent &e)
 {
+    // iOS marks notifications delivered quietly / into the Scheduled Summary as Silent: skip them entirely
+    if (e.flags & ancs::kSilent) {
+        dropPending(e.uid);
+        return;
+    }
     Pend p = {e.uid, e.flags, e.category, e.event == ancs::kAdded && !(e.flags & ancs::kPreExisting)};
     for (int i = 0; i < s_pendCount; i++)
         if (s_pend[i].uid == e.uid) { s_pend[i] = p; return; }
@@ -204,11 +215,6 @@ static void addPending(const ancs::SourceEvent &e)
     if (s_pend[lo].uid < e.uid) s_pend[lo] = p;
 }
 
-static void dropPending(uint32_t uid)
-{
-    for (int i = 0; i < s_pendCount; i++)
-        if (s_pend[i].uid == uid) { s_pend[i] = s_pend[--s_pendCount]; return; }
-}
 
 static const char *cachedName(const char *id)
 {

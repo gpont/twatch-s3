@@ -78,9 +78,11 @@ The night power save (22:30–07:30, optional) temporarily switches to the "off"
 - **Text** is filtered to what the fonts can draw: Latin + Latin-1/Extended-A, all Cyrillic, quotes, single emoji
   (monochrome Noto Emoji `f_emoji_*` as fallback of the text fonts, +570 KB flash). Flags, skin tones, ZWJ and
   variation selectors are dropped (a ZWJ sequence shows as its parts).
+- **Silent notifications** (iOS `Silent` flag: delivered quietly or into the Scheduled Summary) are not fetched
+  or shown at all — they stay in the iPhone's summary.
 - **UX** ([ADR 0005](adr/0005-ux-behaviour.md)): vibration per app; a new notification wakes the screen and shows a
   card; swipe or *Delete* = ANCS negative action. Calls: decline/accept screen, buzz every 1.5 s, max 30 s. At night
-  only calls vibrate. iOS `Silent` flag → no vibration. *Unread* counter on the Big digits face.
+  only calls vibrate. *Unread* counter on the Big digits face.
 - **Debug**: `/debug?notif=TEXT&msg=…[&call=1]` fake notification; `/debug?pm=1` PM locks and time per mode;
   `/debug?forget=1` delete the bond (also "Forget This Device" on the iPhone); `/stats` hourly power summary.
 

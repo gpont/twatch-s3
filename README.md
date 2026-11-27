@@ -49,7 +49,7 @@ Not for the T-Watch 2020/2021, T-Watch S3 Plus or T-Watch Ultra (different hardw
 
 ## Features
 
-**Watch faces** (long-press the face or pick one in Settings)
+**Watch faces** (long-press the face or pick one in Settings; long-press switching can be turned off)
 - Big digits, Game Boy, Dashboard, Analog, Terminal, 90s LCD, Word clock.
 - Each face is one small module: easy to delete or add your own.
 
@@ -59,13 +59,15 @@ Not for the T-Watch 2020/2021, T-Watch S3 Plus or T-Watch Ultra (different hardw
 - Swipe a notification left/right (or tap *Delete*) to dismiss it — it is removed on the iPhone too.
 - Incoming calls: caller screen with **Decline / Accept**, strong repeating vibration.
 - Per-app vibration patterns (Telegram, WhatsApp, Slack, Mail, Calendar, …), quiet nights (only calls vibrate).
+- The notification's own action buttons from iOS (e.g. *Accept / Decline*, app-specific labels when iOS provides them).
+- Notifications iOS delivers quietly or into the Scheduled Summary are skipped, as on the phone.
 - Latin, Cyrillic (incl. Serbian) and monochrome emoji in notification text.
 
 **Everyday watch**
 - Hardware step counter with a 7-day chart.
 - Time from the RTC, corrected over Wi-Fi via NTP; 12 selectable time zones with DST.
 - Wake by tap, crown or wrist raise; per-setting control of each.
-- On-watch settings: brightness, screen timeout, step goal, notifications on/off, night power save, wrist/tap wake, vibration strength, face, time zone, time sync.
+- On-watch settings: brightness, screen timeout, step goal, notifications on/off, night power save, wrist/tap wake, vibration strength, face, face switching by long press on/off, time zone, time sync.
 
 **Power**
 - Screen off → ESP32-S3 light sleep. With notifications on, the ESP-IDF power manager sleeps between BLE events while the iPhone link stays up.
@@ -159,7 +161,7 @@ The UI strings are Russian (Cyrillic fonts, Russian dates and the word clock). T
 ```
 - **Swipe** from the face: up → notifications, left → settings, right → steps (scroll down for battery, iPhone link,
   firmware), down → LoRa mesh (on/off, status, nodes, last message).
-- **Long-press** the face → next watch face.
+- **Long-press** the face → next watch face (Settings → «Смена удержанием» turns this off).
 - **Crown** → screen on/off. **Tap** or **raise your wrist** → screen on.
 - In the notification list: tap to open, swipe sideways to dismiss.
 

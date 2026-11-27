@@ -3,6 +3,13 @@
 All notable changes to this project. Dates are release dates of the firmware build.
 
 ## [Unreleased]
+- LoRa: Meshtastic-compatible mesh node on the built-in SX1262 (vendored Meshtastic 2.8.3 core), controlled from the
+  official Meshtastic iPhone app over the watch's Bluetooth link; bottom screen with on/off, status and messages.
+- License changed from MIT to GPL-3.0 (required by the Meshtastic code).
+- Notifications: action buttons with the labels iOS sends; notifications delivered quietly / into the Scheduled
+  Summary are skipped.
+- Settings: switch off changing the face by long press.
+- Diagnostics: hourly power stats (`/stats`), BLE connection parameters in the log, mesh log (`/meshlog`).
 
 ## [0.1.0] - 2026-11-18
 First public release.

@@ -10,12 +10,14 @@ Status: accepted, 2026-11-16. Replaces parts of ADR 0005 and ADR 0006.
 ## Navigation (updated 2026-11-17)
 Around the face: **notifications up**, **settings left**, **steps right** with **system info** below on the same
 screen (scroll down: battery, iPhone link, firmware, OTA). No screen below the face. Swipe back to the face from the
-side screens. Next face: long press anywhere on the face (also a settings row).
+side screens. Next face: long press anywhere on the face (also a settings row); long-press switching can be turned
+off in Settings («Смена удержанием», 2026-11-27).
 Faces: Big digits, Game Boy, Dashboard, Analog, Terminal, 90s LCD, Word clock.
 
 ## On-watch settings
 Brightness (5 levels, default 50/255), screen timeout, step goal, notifications on/off, night power save, wrist
-wake, tap wake, vibration strength (3 levels), face, time zone, time sync now, reboot.
+wake, tap wake, vibration strength (3 levels), face, face switching by long press, time zone, time sync now, reboot.
+LoRa on/off lives on the LoRa screen below the face (reboots to apply).
 Wrist-gesture sensitivity: the BMA423 tilt feature has no tunable thresholds — would need own tilt detection.
 
 ## Optimizations from measurements ([power report](../power/README.md))

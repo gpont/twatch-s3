@@ -52,6 +52,7 @@ static FaceData collect()
 
 static void onFaceLongPress(lv_event_t *)
 {
+    if (!settings::get().faceLongPress) return; // switched off in Settings (faces change from the Settings row only)
     haptics::tick();
     nextFace();
 }
@@ -491,6 +492,8 @@ static void changeVib()
 }
 static void showFace(lv_obj_t *v) { lv_label_set_text(v, faceName(s_face)); }
 static void changeFace() { nextFace(); }
+static void showFaceLp(lv_obj_t *v) { lv_label_set_text(v, settings::get().faceLongPress ? "вкл" : "выкл"); }
+static void changeFaceLp() { settings::get().faceLongPress = !settings::get().faceLongPress; }
 static void showTz(lv_obj_t *v)
 {
     uint8_t i = settings::get().timezone;
@@ -527,7 +530,7 @@ static void changeNightSave()
 static void showReboot(lv_obj_t *v) { lv_label_set_text(v, LV_SYMBOL_REFRESH); }
 static void changeReboot() { ESP.restart(); }
 
-enum RowId { kRowBright, kRowTimeout, kRowGoal, kRowNotif, kRowNightSave, kRowGesture, kRowTap, kRowVib, kFaceRow, kRowTz, kRowSync, kRowReboot, kRowCount };
+enum RowId { kRowBright, kRowTimeout, kRowGoal, kRowNotif, kRowNightSave, kRowGesture, kRowTap, kRowVib, kFaceRow, kRowFaceLp, kRowTz, kRowSync, kRowReboot, kRowCount };
 static Row s_rows[kRowCount];
 static void refreshFaceRow() { if (s_rows[kFaceRow].value) s_rows[kFaceRow].show(s_rows[kFaceRow].value); }
 
@@ -583,6 +586,7 @@ static void buildSettings(lv_obj_t *t)
     addRow(list, kRowTap, "Тап будит", changeTap, showTap);
     addRow(list, kRowVib, "Вибрация", changeVib, showVib);
     addRow(list, kFaceRow, "Циферблат", changeFace, showFace);
+    addRow(list, kRowFaceLp, "Смена удержанием", changeFaceLp, showFaceLp);
     addRow(list, kRowTz, "Часовой пояс", changeTz, showTz);
     addRow(list, kRowSync, "Синхр. время", changeSync, showSync);
     addRow(list, kRowReboot, "Перезагрузить", changeReboot, showReboot);

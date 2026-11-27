@@ -13,7 +13,8 @@ struct Settings {
     uint8_t timezone = 0;       // index into local_time::kZones
     bool notifications = true;
     bool nightSave = true;
-    bool lora = false;          // Meshtastic-compatible LoRa node (src/lora), applied at boot      // night power save 22:30-07:30 (app/modes)  // iPhone notifications over BLE (+ PM auto light sleep)
+    bool lora = false;
+    bool faceLongPress = true;  // long press on the face switches to the next face          // Meshtastic-compatible LoRa node (src/lora), applied at boot      // night power save 22:30-07:30 (app/modes)  // iPhone notifications over BLE (+ PM auto light sleep)
 };
 
 namespace settings {
